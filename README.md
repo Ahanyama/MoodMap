@@ -1,0 +1,2 @@
+# MoodMap
+MoodMap is a smart navigation app that prioritizes the "vibe" of your journey over just the speed. Instead of the fastest route, it lets you choose paths based on moods like Calm, Social, or Safe by analyzing data like park density, street lighting, and cafe popularity. It essentially works like a "Spotify playlist" for your walk, steering you through scenic or peaceful areas rather than busy highways.
