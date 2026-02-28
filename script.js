@@ -112,36 +112,62 @@ async function applySearch() {
 }
 
 async function getSmartRoute(start, end, userInput) {
-    document.getElementById("status").innerHTML = "Analyzing...";
+    document.getElementById("status").innerHTML = "Analyzing diverse paths...";
     const keyword = detectNeed(userInput);
+    
     try {
         const res = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson", {
             method: "POST",
             headers: {"Authorization": ORS_API_KEY, "Content-Type": "application/json"},
-            body: JSON.stringify({coordinates: [[start.lng, start.lat], [end.lng, end.lat]], alternative_routes: {target_count: 3}})
+            body: JSON.stringify({
+                coordinates: [[start.lng, start.lat], [end.lng, end.lat]],
+                alternative_routes: { 
+                    target_count: 3, 
+                    share_factor: 0.5, // Forces routes to deviate by 50%
+                    weight_factor: 1.4 
+                }
+            })
         });
         const data = await res.json();
+        
+        // 1. Set the absolute fastest route
         fastRouteData = data.features[0];
         
-        let bestScore = -1;
-        for (let route of data.features) {
-            let buffer = turf.buffer(route, 0.8, {units: 'kilometers'});
+        let bestAlternative = data.features[0];
+        let maxPoiCount = -1;
+        let allPlacesFound = [];
+
+        // 2. Loop through ALL alternatives
+        for (let i = 0; i < data.features.length; i++) {
+            let route = data.features[i];
+            let buffer = turf.buffer(route, 1.5, {units: 'kilometers'}); 
             const bbox = turf.bbox(buffer);
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${keyword}&bounded=1&viewbox=${bbox[0]},${bbox[3]},${bbox[2]},${bbox[1]}&limit=10`;
+            
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${keyword}&bounded=1&viewbox=${bbox[0]},${bbox[3]},${bbox[2]},${bbox[1]}&limit=20`;
             const poiRes = await fetch(url);
             const places = await poiRes.json();
-            
-            if (places.length > bestScore) {
-                bestScore = places.length;
-                moodRouteData = route;
-                bestPlaces = places;
+
+            // 3. Logic: If this route has more POIs, OR if it's just different, mark it
+            if (places.length > maxPoiCount) {
+                maxPoiCount = places.length;
+                bestAlternative = route;
+                allPlacesFound = places;
             }
         }
+
+        // 4. THE FIX: If the 'best' mood route is still the same as the fast route,
+        // force it to pick the 2nd alternative (index 1) to show a difference.
+        if (JSON.stringify(bestAlternative.geometry) === JSON.stringify(fastRouteData.geometry) && data.features.length > 1) {
+            moodRouteData = data.features[1]; 
+        } else {
+            moodRouteData = bestAlternative;
+        }
+
+        bestPlaces = allPlacesFound;
         currentMood = keyword;
         renderComparison();
     } catch (err) { console.error(err); }
 }
-
 function detectNeed(i) {
     i = i.toLowerCase();
     if (i.includes("food") || i.includes("hungry") || i.includes("eat")) return "restaurant";
@@ -156,28 +182,28 @@ function detectNeed(i) {
 }
 // --- UPDATED RENDER LOGIC ---
 function renderComparison() {
-    const isMood = document.getElementById("moodToggle").checked;
-    const routeToDraw = isMood ? moodRouteData : fastRouteData;
+    const isMoodEnabled = document.getElementById("moodToggle").checked;
     
-    // Clear old route and old markers
+    // Select which data to draw
+    const routeToDraw = isMoodEnabled ? moodRouteData : fastRouteData;
+    const routeColor = isMoodEnabled ? '#8b5cf6' : '#3498db';
+
+    // Clear previous layers
     if (routeLayer) map.removeLayer(routeLayer);
     poiMarkers.forEach(m => map.removeLayer(m));
     poiMarkers = [];
 
-    // Draw the route line
-    const routeColor = isMood ? '#e67e22' : '#3498db'; // Orange for mood, Blue for fast
+    // Draw the chosen route
     routeLayer = L.geoJSON(routeToDraw, {
         style: { color: routeColor, weight: 6, opacity: 0.8 }
     }).addTo(map);
 
-    // If Mood is enabled, show the emoji bubbles
-    if (isMood && bestPlaces.length > 0) {
+    // Only show emojis if Mood Mode is ON
+    if (isMoodEnabled && bestPlaces.length > 0) {
         displayMoodMarkers(bestPlaces, currentMood, routeColor);
     }
 
-    // Update Status Bar with the "Found X" message
-    updateStatusBar(isMood);
-    
+    updateStatusBar(isMoodEnabled);
     map.fitBounds(routeLayer.getBounds());
 }
 
