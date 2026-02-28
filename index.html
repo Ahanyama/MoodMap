@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartNav | Context-Aware Routing</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <section id="landing-page">
+        <canvas id="liquid-bg"></canvas>
+        <div class="hero-content">
+            <h1 class="main-title">Navigate <br><span class="highlight">Your Needs.</span></h1>
+            <p class="tagline">Stop just following lines. Start discovering your surroundings based on what you need right now.</p>
+            <button class="original-btn" onclick="launchApp()">
+                <span>Launch Navigator</span>
+                <div class="btn-bubble"></div>
+            </button>
+        </div>
+    </section>
+
+    <main id="map-interface" style="display: none;">
+        <div id="control-panel">
+            <div class="brand">🚀 <span>SmartNav</span></div>
+            <input type="text" id="userInput" placeholder="I'm hungry, fuel is low...">
+            <div class="btn-row">
+                <button class="apply-btn" onclick="applySearch()">Apply</button>
+                <button class="reset-btn" onclick="resetMap()">Reset</button>
+            </div>
+            <div class="switch-container">
+                <input type="checkbox" id="moodToggle" onchange="toggleRoute()"> 
+                <span>Enable Mood-Optimized Path</span>
+            </div>
+            <div id="status">Tap map to set Start & Destination</div>
+        </div>
+        <div id="map"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

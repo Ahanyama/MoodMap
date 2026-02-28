@@ -1,0 +1,86 @@
+:root {
+    --bg-dark: #030509;
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --text-primary: #ffffff;
+    --text-muted: #94a3b8;
+}
+
+body, html { margin: 0; padding: 0; overflow: hidden; background: var(--bg-dark); }
+
+/* --- LANDING PAGE --- */
+#landing-page {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+#liquid-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+.hero-content {
+    position: relative; z-index: 10; padding: 60px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px; text-align: center;
+}
+
+.main-title { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1.1; }
+.highlight { background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.tagline { color: var(--text-muted); margin: 20px 0 40px; }
+
+.original-btn {
+    position: relative; padding: 18px 45px; font-weight: 700; color: white;
+    background: none; border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px; cursor: pointer; overflow: hidden;
+}
+.btn-bubble { position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--accent-blue); border-radius: 50%; transform: translate(-50%, -50%); transition: 0.6s; z-index: 1; }
+.original-btn:hover .btn-bubble { width: 350px; height: 350px; }
+.original-btn span { position: relative; z-index: 2; }
+
+/* --- MAP UI --- */
+#map-interface { width: 100vw; height: 100vh; position: relative; }
+#map { width: 100%; height: 100%; z-index: 1; background: #000; }
+
+#control-panel {
+    position: absolute; top: 20px; left: 20px; z-index: 1001;
+    background: rgba(255, 255, 255, 0.9); padding: 20px;
+    border-radius: 15px; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.fade-out { opacity: 0; visibility: hidden; transition: 0.8s; }
+#liquid-bg {
+    pointer-events: none; /* Allows clicks to pass through to the button */
+}
+
+/* --- CUSTOM POI BUBBLE STYLING --- */
+.poi-bubble {
+    background: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 3px solid #3498db; /* Default border color */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.poi-bubble:hover {
+    transform: scale(1.2);
+    z-index: 1000;
+}
+
+/* This clears the default Leaflet square background */
+.custom-poi-container {
+    background: transparent !important;
+    border: none !important;
+}
